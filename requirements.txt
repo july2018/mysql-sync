@@ -1,0 +1,3 @@
+pymysql>=1.1.0
+mysql-replication>=1.0.0      # PyPI 包名（模块名仍为 pymysqlreplication）
+PyYAML>=6.0

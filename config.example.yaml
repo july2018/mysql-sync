@@ -1,0 +1,61 @@
+# MySQL 同步配置文件（示例）
+# 复制本文件为 config.yaml 并修改实际值：cp config.example.yaml config.yaml
+
+# 源数据库（主库）配置
+source:
+  host: "127.0.0.1"
+  port: 3306
+  user: "repl_user"          # 需要 REPLICATION SLAVE, REPLICATION CLIENT 权限
+  password: "your_password_here"
+  charset: "utf8mb4"
+
+# 目标数据库配置
+target:
+  host: "127.0.0.1"
+  port: 3306
+  user: "sync_user"          # 需要 INSERT, UPDATE, DELETE, CREATE 权限
+  password: "your_password_here"
+  charset: "utf8mb4"
+
+# 同步配置
+sync:
+  # 需要同步的数据库列表（为空则同步所有非系统数据库）
+  databases:
+    - "mydb1"
+    - "mydb2"
+
+  # 需要排除的表（格式: database.table）
+  exclude_tables: []
+
+  # 全量同步配置
+  full_sync:
+    enabled: true
+    # mysqldump 可执行文件路径（留空则自动查找 PATH）
+    mysqldump_bin: ""
+    # mysql 可执行文件路径（留空则自动查找 PATH）
+    mysql_bin: ""
+    # 单次导出行数限制（用于大表分批）
+    chunk_size: 10000
+    # 并行导出的数据库数量
+    parallel: 2
+
+  # 增量同步配置（Binlog 方式）
+  incremental:
+    enabled: true
+    # 伪装从库的 server_id（必须与主库及其他从库不同）
+    server_id: 9999
+    # Binlog 位点持久化文件
+    position_file: "logs/binlog_position.json"
+    # 自动重连间隔（秒）
+    reconnect_interval: 5
+    # 每批次写入目标库的事件数
+    batch_size: 100
+    # 批次提交超时（秒，超时强制提交）
+    batch_timeout: 2
+
+# 日志配置
+logging:
+  level: "INFO"           # DEBUG / INFO / WARNING / ERROR
+  file: "logs/sync.log"
+  max_bytes: 10485760     # 10MB
+  backup_count: 5
